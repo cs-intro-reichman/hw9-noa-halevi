@@ -101,17 +101,28 @@ public class MemorySpace {
 	public void free(int address) {
 		ListIterator itr = allocatedList.iterator();
 		MemoryBlock blockToFree = null;
+		int indexToRemove = -1; 
+		int index = 0;
 		while (itr.hasNext()) {
 			MemoryBlock allocatedBlock = itr.next();
 			if (allocatedBlock.baseAddress == address) {
 				blockToFree = allocatedBlock;
+				indexToRemove = index;  
 				break;
 			}
+			index++;
 		}
 		if (blockToFree == null) {
 			throw new IllegalArgumentException("index must be between 0 and size");
 		}
-		allocatedList.remove(blockToFree);
+		ListIterator freeItr = freeList.iterator();
+		while (freeItr.hasNext()) {
+			MemoryBlock freeBlock = (MemoryBlock) freeItr.next();
+			if (freeBlock.baseAddress == address) {
+				throw new IllegalArgumentException("index already freed");
+			}
+		}
+		allocatedList.remove(indexToRemove);
 		freeList.addLast(blockToFree);
 	}
 	
