@@ -100,6 +100,24 @@ public class LinkedList {
         }
         size++;
 	}
+	/**
+	 * Creates a new node that points to the given memory block, and adds it
+	 * to the end of this list (the node will become the list's last element).
+	 * 
+	 * @param block
+	 *        the given memory block
+	 */
+	public void addLast(MemoryBlock block) {
+		Node newNode = new Node(block);
+        if (this.size == 0) {
+            this.first = newNode;
+            this.last = newNode;
+        } else {
+            this.last.next = newNode;
+            this.last = newNode;
+        }
+        size++;
+	}
 	
 	/**
 	 * Creates a new node that points to the given memory block, and adds it 
