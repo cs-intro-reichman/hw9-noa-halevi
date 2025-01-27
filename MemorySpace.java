@@ -63,32 +63,37 @@ public class MemorySpace {
 	 */
 	public int malloc(int length) {		
 		ListIterator itr = freeList.iterator();
-		MemoryBlock blockToAllocate = null; 
-		MemoryBlock blockToUpdate = null;   
-		MemoryBlock blockToRemove = null;
-		while (itr.hasNext()) {
-			MemoryBlock freeBlock = itr.next();
-			if(freeBlock.length >= length){
-				blockToAllocate = new MemoryBlock(freeBlock.baseAddress, length);
-				if (freeBlock.length == length) {
-					blockToRemove = freeBlock;
-				} else {
-					blockToUpdate = freeBlock;
-				}
-				break;
-			}
-		}
-		if(blockToAllocate == null){
-			return -1;
-		}
-		allocatedList.addLast(blockToAllocate);
-		if(blockToRemove != null){
-			freeList.remove(blockToRemove);
-		} else {
-			blockToUpdate.baseAddress += length;
-        	blockToUpdate.length -= length;
-		}
-		return blockToAllocate.baseAddress;
+        MemoryBlock blockToAllocate = null;
+        MemoryBlock blockToUpdate = null;
+        MemoryBlock blockToRemove = null;
+
+        while (itr.hasNext()) {
+            MemoryBlock freeBlock = itr.next();
+            if (freeBlock.length >= length) {
+                blockToAllocate = new MemoryBlock(freeBlock.baseAddress, length);
+                if (freeBlock.length == length) {
+                    blockToRemove = freeBlock;
+                } else {
+                    blockToUpdate = freeBlock;
+                }
+                break;
+            }
+        }
+
+        if (blockToAllocate == null) {
+            return -1;
+        }
+
+        allocatedList.addLast(blockToAllocate);
+
+        if (blockToRemove != null) {
+            freeList.remove(blockToRemove);
+        } else {
+            blockToUpdate.baseAddress += length;
+            blockToUpdate.length -= length;
+        }
+
+        return blockToAllocate.baseAddress;
 	}
 
 	/**
@@ -101,18 +106,20 @@ public class MemorySpace {
 	 */
 	public void free(int address) {
 		ListIterator itr = allocatedList.iterator();
-		MemoryBlock blockToFree = null;
-		while (itr.hasNext()) {
-			MemoryBlock aloccBlock = itr.next();
-			if(aloccBlock.baseAddress == address){
-				blockToFree = aloccBlock;
-				break;
-			}
-		}
-		if(blockToFree != null){
-			freeList.addLast(blockToFree);
-			allocatedList.remove(blockToFree);
-		}
+        MemoryBlock blockToFree = null;
+
+        while (itr.hasNext()) {
+            MemoryBlock allocatedBlock = itr.next();
+            if (allocatedBlock.baseAddress == address) {
+                blockToFree = allocatedBlock;
+                break;
+            }
+        }
+
+        if (blockToFree != null) {
+            freeList.addLast(blockToFree);
+            allocatedList.remove(blockToFree);
+        }
 	}
 	
 	/**
@@ -132,53 +139,58 @@ public class MemorySpace {
 		/// TODO: Implement defrag test
 		//// Write your code here
 		sortFreeList();
-		ListIterator iter = freeList.iterator();
-		while (iter.hasNext()) {
-			Node currentNode = iter.current;
-			Node nextNode = currentNode.next;
-			while (nextNode != null) {
-				MemoryBlock currentBlock = currentNode.block;
-				MemoryBlock nextBlock = nextNode.block;
-				if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
-					currentBlock.length += nextBlock.length;
-					freeList.remove(nextNode); 
-					nextNode = currentNode.next; 
-				} else {
-					nextNode = nextNode.next; 
-				}
-			}
-			iter.next(); 
-		}
-	}
-	
-	private void sortFreeList() {
-		if (freeList.getSize() <= 1) return;
-	
-		boolean swapped;
-		do {
-			swapped = false;
-			ListIterator iter = freeList.iterator();
-	
-			while (iter.hasNext() && iter.current.next != null) {
-				MemoryBlock currentBlock = iter.current.block;
-				MemoryBlock nextBlock = iter.current.next.block;
-	
-				if (currentBlock.baseAddress > nextBlock.baseAddress) {
-					int tempBase = currentBlock.baseAddress;
-					int tempLength = currentBlock.length;
-	
-					currentBlock.baseAddress = nextBlock.baseAddress;
-					currentBlock.length = nextBlock.length;
-	
-					nextBlock.baseAddress = tempBase;
-					nextBlock.length = tempLength;
-	
-					swapped = true;
-				}
-				iter.next();
-			}
-		} while (swapped);
-	}
+        ListIterator iter = freeList.iterator();
+
+        while (iter.hasNext()) {
+            Node currentNode = iter.current;
+            Node nextNode = currentNode.next;
+
+            while (nextNode != null) {
+                MemoryBlock currentBlock = currentNode.block;
+                MemoryBlock nextBlock = nextNode.block;
+
+                if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
+                    currentBlock.length += nextBlock.length;
+                    freeList.remove(nextNode);
+                    nextNode = currentNode.next;
+                } else {
+                    nextNode = nextNode.next;
+                }
+            }
+
+            iter.next();
+        }
+    }
+
+    private void sortFreeList() {
+        if (freeList.getSize() <= 1) return;
+
+        boolean swapped;
+        do {
+            swapped = false;
+            ListIterator iter = freeList.iterator();
+
+            while (iter.hasNext() && iter.current.next != null) {
+                MemoryBlock currentBlock = iter.current.block;
+                MemoryBlock nextBlock = iter.current.next.block;
+
+                if (currentBlock.baseAddress > nextBlock.baseAddress) {
+                    int tempBase = currentBlock.baseAddress;
+                    int tempLength = currentBlock.length;
+
+                    currentBlock.baseAddress = nextBlock.baseAddress;
+                    currentBlock.length = nextBlock.length;
+
+                    nextBlock.baseAddress = tempBase;
+                    nextBlock.length = tempLength;
+
+                    swapped = true;
+                }
+
+                iter.next();
+            }
+        } while (swapped);
+    }
 }
 
 
@@ -195,25 +207,23 @@ class MemorySpaceTest1234 {
     }
 
     // Test 1: Defrag with an empty freeList
-    public static void defragTest1() {
+	public static void defragTest1() {
         MemorySpace memorySpace = new MemorySpace(100);
         memorySpace.defrag();
-        String expected = "(0 , 100)";
-        String actual = memorySpace.toString().split("\n")[0]; // Get only the freeList part
+        String expected = "(0 , 100)\n";
+        String actual = memorySpace.toString().split("\n")[0];
         System.out.println("Test 1: " + (expected.equals(actual) ? "Passed" : "Failed"));
     }
 
-    // Test 2: Defrag with a single block in freeList
     public static void defragTest2() {
         MemorySpace memorySpace = new MemorySpace(100);
-        memorySpace.malloc(50); // Allocate 50, leaving (50 , 50)
+        memorySpace.malloc(50);
         memorySpace.defrag();
-        String expected = "(50 , 50)";
-        String actual = memorySpace.toString().split("\n")[0]; // Get only the freeList part
+        String expected = "(50 , 50)\n";
+        String actual = memorySpace.toString().split("\n")[0];
         System.out.println("Test 2: " + (expected.equals(actual) ? "Passed" : "Failed"));
     }
 
-    // Test 3: Defrag two consecutive blocks
     public static void defragTest3() {
         MemorySpace memorySpace = new MemorySpace(100);
         int addr1 = memorySpace.malloc(20);
@@ -221,12 +231,11 @@ class MemorySpaceTest1234 {
         memorySpace.free(addr1);
         memorySpace.free(addr2);
         memorySpace.defrag();
-        String expected = "(0 , 50)";
-        String actual = memorySpace.toString().split("\n")[0]; // Get only the freeList part
+        String expected = "(0 , 50)\n";
+        String actual = memorySpace.toString().split("\n")[0];
         System.out.println("Test 3: " + (expected.equals(actual) ? "Passed" : "Failed"));
     }
 
-    // Test 4: Defrag three consecutive blocks
     public static void defragTest4() {
         MemorySpace memorySpace = new MemorySpace(100);
         int addr1 = memorySpace.malloc(20);
@@ -236,31 +245,11 @@ class MemorySpaceTest1234 {
         memorySpace.free(addr2);
         memorySpace.free(addr3);
         memorySpace.defrag();
-        String expected = "(0 , 60)";
-        String actual = memorySpace.toString().split("\n")[0]; // Get only the freeList part
+        String expected = "(0 , 60)\n";
+        String actual = memorySpace.toString().split("\n")[0];
         System.out.println("Test 4: " + (expected.equals(actual) ? "Passed" : "Failed"));
     }
-
-	private static void testDefrag() {
-        MemorySpace memory = new MemorySpace(100); // alloc =  (10,30) (40,20)  free- (0,10) (60,5) (65,35), => defrag() - freelist = (0,10) (60,35)
-        memory.malloc(10);  
-        memory.malloc(30); 
-        memory.malloc(20);
-        int addr4 = memory.malloc(5); 
-
-        memory.free(0);
-        memory.free(addr4);
-
-        String beforeDefrag = "(10,30) (40,20)\n(0,10) (60,5) (65,35)";
-		System.out.print("expected " + beforeDefrag + "\n");
-		System.out.print("mine " + memory.toString() + "\n");
-        memory.defrag();
-
-        String afterDefrag = "(10,30) (40,20)\n(0,10) (60,35)";
-		System.out.print("expected " + afterDefrag + "\n");
-		System.out.print("mine " + memory.toString() + "\n");
-
-    }
+    
 }
 
 
