@@ -109,7 +109,7 @@ public class MemorySpace {
 			}
 		}
 		if (blockToFree == null) {
-			throw new IllegalArgumentException("No allocated block with the given address");
+			throw new IllegalArgumentException("index must be between 0 and size");
 		}
 		allocatedList.remove(blockToFree);
 		freeList.addLast(blockToFree);
