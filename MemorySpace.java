@@ -62,38 +62,32 @@ public class MemorySpace {
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
 	public int malloc(int length) {		
+		if (length <= 0) {
+			throw new IllegalArgumentException("Block length must be positive");
+		}
+	
 		ListIterator itr = freeList.iterator();
-        MemoryBlock blockToAllocate = null;
-        MemoryBlock blockToUpdate = null;
-        MemoryBlock blockToRemove = null;
-
-        while (itr.hasNext()) {
-            MemoryBlock freeBlock = itr.next();
-            if (freeBlock.length >= length) {
-                blockToAllocate = new MemoryBlock(freeBlock.baseAddress, length);
-                if (freeBlock.length == length) {
-                    blockToRemove = freeBlock;
-                } else {
-                    blockToUpdate = freeBlock;
-                }
-                break;
-            }
-        }
-
-        if (blockToAllocate == null) {
-            return -1;
-        }
-
-        allocatedList.addLast(blockToAllocate);
-
-        if (blockToRemove != null) {
-            freeList.remove(blockToRemove);
-        } else {
-            blockToUpdate.baseAddress += length;
-            blockToUpdate.length -= length;
-        }
-
-        return blockToAllocate.baseAddress;
+		MemoryBlock blockToAllocate = null;
+	
+		while (itr.hasNext()) {
+			MemoryBlock freeBlock = itr.next();
+			if (freeBlock.length >= length) {
+				blockToAllocate = new MemoryBlock(freeBlock.baseAddress, length);
+	
+				if (freeBlock.length == length) {
+					freeList.remove(freeBlock);
+				} else {
+					freeBlock.baseAddress += length;
+					freeBlock.length -= length;
+				}
+				break;
+			}
+		}
+		if (blockToAllocate == null) {
+			return -1; 
+		}
+		allocatedList.addLast(blockToAllocate);
+		return blockToAllocate.baseAddress;
 	}
 
 	/**
@@ -106,20 +100,19 @@ public class MemorySpace {
 	 */
 	public void free(int address) {
 		ListIterator itr = allocatedList.iterator();
-        MemoryBlock blockToFree = null;
-
-        while (itr.hasNext()) {
-            MemoryBlock allocatedBlock = itr.next();
-            if (allocatedBlock.baseAddress == address) {
-                blockToFree = allocatedBlock;
-                break;
-            }
-        }
-
-        if (blockToFree != null) {
-            freeList.addLast(blockToFree);
-            allocatedList.remove(blockToFree);
-        }
+		MemoryBlock blockToFree = null;
+		while (itr.hasNext()) {
+			MemoryBlock allocatedBlock = itr.next();
+			if (allocatedBlock.baseAddress == address) {
+				blockToFree = allocatedBlock;
+				break;
+			}
+		}
+		if (blockToFree == null) {
+			throw new IllegalArgumentException("No allocated block with the given address");
+		}
+		allocatedList.remove(blockToFree);
+		freeList.addLast(blockToFree);
 	}
 	
 	/**
