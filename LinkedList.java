@@ -170,7 +170,7 @@ public class LinkedList {
 			}
 			current = current.next;
 		}
-		throw new IllegalArgumentException("index must be between 0 and size");
+		return -1;
 	}
 
 	/**
@@ -184,25 +184,24 @@ public class LinkedList {
 			throw new NullPointerException("Node is null!");
 		}
 		if (this.size == 0) {
-			throw new IllegalArgumentException("index must be between 0 and size");
+			throw new IllegalArgumentException("Cannot remove from an empty list");
 		}
-		if (this.size == 1) {
-			this.first = null;
-			this.last = null;
-		} else if (this.first == node) {
+		if (this.first == node) {
 			this.first = this.first.next;
+			if (this.size == 1) {
+				this.last = null;
+			}
 		} else {
 			Node current = this.first;
 			while (current.next != null && current.next != node) {
 				current = current.next;
 			}
-			if (current.next == node) {
-				current.next = node.next;
-				if (node == this.last) {
-					this.last = current;
-				}
-			} else {
+			if (current.next == null) {
 				throw new IllegalArgumentException("Node not found in the list");
+			}
+			current.next = node.next;
+			if (node == this.last) {
+				this.last = current;
 			}
 		}
 		size--;
@@ -244,6 +243,9 @@ public class LinkedList {
 	 */
 	public void remove(MemoryBlock block) {
 		int index = indexOf(block); 
+		if (index == -1) {
+			throw new IllegalArgumentException("Block not found in the list");
+		}
 		remove(index);
     }
 
