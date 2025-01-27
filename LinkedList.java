@@ -244,7 +244,7 @@ public class LinkedList {
 	public void remove(MemoryBlock block) {
 		int index = indexOf(block); 
 		if (index == -1) {
-			throw new IllegalArgumentException("Block not found in the list");
+			throw new IllegalArgumentException("index must be between 0 and size");
 		}
 		remove(index);
     }
@@ -259,16 +259,14 @@ public class LinkedList {
 	/**
 	 * A textual representation of this list, for debugging.
 	 */
-	public String toString() {
-		StringBuilder result = new StringBuilder();
-        ListIterator iter = this.iterator();
-        while (iter.hasNext()) {
-            MemoryBlock current = iter.next();
-            result.append(current);
-            if (iter.hasNext()) {
-                result.append(" ");
-            }
-        }
-        return result.toString();
+
+		public String toString() {
+			String s = "";
+			Node current = first;
+			while (current != null) {
+			s = s + current.block + " ";
+			current = current.next;
+			}
+			return s;
+			}
 	}
-}
