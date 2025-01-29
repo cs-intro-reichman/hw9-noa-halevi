@@ -118,7 +118,7 @@ public class MemorySpace {
 		while (freeItr.hasNext()) {
 			MemoryBlock freeBlock = freeItr.next();
 			if (freeBlock.baseAddress == address) {
-				return; 
+				return;
 			}
 		}
 		allocatedList.remove(blockToFree);
