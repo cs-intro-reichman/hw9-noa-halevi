@@ -101,7 +101,6 @@ public class MemorySpace {
 	public void free(int address) {
 		ListIterator allocatedItr = allocatedList.iterator();
 		MemoryBlock blockToFree = null;
-	
 		while (allocatedItr.hasNext()) {
 			MemoryBlock allocatedBlock = allocatedItr.next();
 			if (allocatedBlock.baseAddress == address) {
@@ -116,7 +115,7 @@ public class MemorySpace {
 		while (freeItr.hasNext()) {
 			MemoryBlock freeBlock = freeItr.next();
 			if (freeBlock.baseAddress == address) {
-				throw new IllegalArgumentException("index already freed");
+				return; 
 			}
 		}
 		allocatedList.remove(blockToFree);
