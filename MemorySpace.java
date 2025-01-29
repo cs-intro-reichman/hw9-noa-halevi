@@ -109,7 +109,7 @@ public class MemorySpace {
 			}
 		}
 		if (blockToFree == null) {
-			throw new IllegalArgumentException("index must be between 0 and size");
+			return; 
 		}
 		ListIterator freeItr = freeList.iterator();
 		while (freeItr.hasNext()) {
