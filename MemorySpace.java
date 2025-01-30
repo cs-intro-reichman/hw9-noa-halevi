@@ -99,31 +99,23 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		ListIterator allocatedItr = allocatedList.iterator();
-		MemoryBlock blockToFree = null;
-	
-		while (allocatedItr.hasNext()) {
-			MemoryBlock allocatedBlock = allocatedItr.next();
-			if (allocatedBlock.baseAddress == address) {
-				blockToFree = allocatedBlock;
-				break;
-			}
-		}
-		if (blockToFree == null) {
-			if (freeList.getFirst() == null) {
-				throw new IllegalArgumentException("index must be between 0 and size");
-			}
-			return;
-		}
-		ListIterator freeItr = freeList.iterator();
-		while (freeItr.hasNext()) {
-			MemoryBlock freeBlock = freeItr.next();
-			if (freeBlock.baseAddress == address) {
-				return;
-			}
-		}
-		allocatedList.remove(blockToFree);
-		freeList.addLast(blockToFree);
+		Node freeNodeBlock = allocatedList.getNode(0);
+    	while (freeNodeBlock != null) {
+        if (freeNodeBlock.block.baseAddress == address) {
+            Node checkFreeNode = freeList.getNode(0);
+            while (checkFreeNode != null) {
+                if (checkFreeNode.block.baseAddress == address) {
+                    return;
+                }
+                checkFreeNode = checkFreeNode.next;
+            }
+            freeList.addLast(freeNodeBlock.block);
+            allocatedList.remove(freeNodeBlock.block);
+            return;
+        }
+        freeNodeBlock = freeNodeBlock.next;
+    }
+    throw new IllegalArgumentException("index must be between 0 and size");
 	}
 
 	
