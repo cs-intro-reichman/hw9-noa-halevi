@@ -140,61 +140,54 @@ public class MemorySpace {
 		/// TODO: Implement defrag test
 		//// Write your code here
 		sortFreeList();
-        ListIterator iter = freeList.iterator();
-
-        while (iter.hasNext()) {
-            Node currentNode = iter.current;
-            Node nextNode = currentNode.next;
-
-            while (nextNode != null) {
-                MemoryBlock currentBlock = currentNode.block;
-                MemoryBlock nextBlock = nextNode.block;
-
-                if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
-                    currentBlock.length += nextBlock.length;
-                    freeList.remove(nextNode);
-                    nextNode = currentNode.next;
-                } else {
-                    nextNode = nextNode.next;
-                }
-            }
-
-            iter.next();
-        }
-    }
-
-    private void sortFreeList() {
-        if (freeList.getSize() <= 1) return;
-
-        boolean swapped;
-        do {
-            swapped = false;
-            ListIterator iter = freeList.iterator();
-
-            while (iter.hasNext() && iter.current.next != null) {
-                MemoryBlock currentBlock = iter.current.block;
-                MemoryBlock nextBlock = iter.current.next.block;
-
-                if (currentBlock.baseAddress > nextBlock.baseAddress) {
-                    int tempBase = currentBlock.baseAddress;
-                    int tempLength = currentBlock.length;
-
-                    currentBlock.baseAddress = nextBlock.baseAddress;
-                    currentBlock.length = nextBlock.length;
-
-                    nextBlock.baseAddress = tempBase;
-                    nextBlock.length = tempLength;
-
-                    swapped = true;
-                }
-
-                iter.next();
-            }
-        } while (swapped);
-    }
+		ListIterator iter = freeList.iterator();
+		while (iter.hasNext()) {
+			Node currentNode = iter.current;
+			Node nextNode = currentNode.next;
+			while (nextNode != null) {
+				MemoryBlock currentBlock = currentNode.block;
+				MemoryBlock nextBlock = nextNode.block;
+				if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
+					currentBlock.length += nextBlock.length;
+					freeList.remove(nextNode); 
+					nextNode = currentNode.next; 
+				} else {
+					nextNode = nextNode.next; 
+				}
+			}
+			iter.next(); 
+		}
+	}
+	
+	private void sortFreeList() {
+		if (freeList.getSize() <= 1) return;
+	
+		boolean swapped;
+		do {
+			swapped = false;
+			ListIterator iter = freeList.iterator();
+	
+			while (iter.hasNext() && iter.current.next != null) {
+				MemoryBlock currentBlock = iter.current.block;
+				MemoryBlock nextBlock = iter.current.next.block;
+	
+				if (currentBlock.baseAddress > nextBlock.baseAddress) {
+					int tempBase = currentBlock.baseAddress;
+					int tempLength = currentBlock.length;
+	
+					currentBlock.baseAddress = nextBlock.baseAddress;
+					currentBlock.length = nextBlock.length;
+	
+					nextBlock.baseAddress = tempBase;
+					nextBlock.length = tempLength;
+	
+					swapped = true;
+				}
+				iter.next();
+			}
+		} while (swapped);
 }
-
-
+}
 //My Tests:
 
 
