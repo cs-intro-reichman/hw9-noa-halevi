@@ -99,27 +99,27 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		Node freeNode = allocatedList.getNode(0);  
-		MemoryBlock blockToFree = null;
-		while (freeNode != null) {
-			if (freeNode.block.baseAddress == address) {
-				blockToFree = freeNode.block;
-				break;
-			}
-			freeNode = freeNode.next;
-		}
-		if (blockToFree == null) {
-			throw new IllegalArgumentException("index must be between 0 and size");
-		}
-		Node checkFreeNode = freeList.getNode(0);
-		while (checkFreeNode != null) {
-			if (checkFreeNode.block.baseAddress == address) {
-				return; 
-			}
-			checkFreeNode = checkFreeNode.next;
-		}
-		allocatedList.remove(blockToFree);
-		freeList.addLast(blockToFree);
+		ListIterator freeItr = freeList.iterator();
+        while (freeItr.hasNext()) {
+            MemoryBlock block = freeItr.next();
+            if (block.baseAddress == address) {
+                return; 
+            }
+        }
+        ListIterator allocItr = allocatedList.iterator();
+        MemoryBlock blockToFree = null;
+        
+        while (allocItr.hasNext()) {
+            MemoryBlock block = allocItr.next();
+            if (block.baseAddress == address) {
+                blockToFree = block;
+                break;
+            }
+        }
+        if (blockToFree != null) {
+            allocatedList.remove(blockToFree);
+            freeList.addLast(blockToFree);
+        }
 	}
 
 	
@@ -139,54 +139,45 @@ public class MemorySpace {
 	public void defrag() {
 		/// TODO: Implement defrag test
 		//// Write your code here
-		sortFreeList();
-		ListIterator iter = freeList.iterator();
-		while (iter.hasNext()) {
-			Node currentNode = iter.current;
-			Node nextNode = currentNode.next;
-			while (nextNode != null) {
-				MemoryBlock currentBlock = currentNode.block;
-				MemoryBlock nextBlock = nextNode.block;
-				if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
-					currentBlock.length += nextBlock.length;
-					freeList.remove(nextNode); 
-					nextNode = currentNode.next; 
-				} else {
-					nextNode = nextNode.next; 
-				}
-			}
-			iter.next(); 
-		}
-	}
-	
-	private void sortFreeList() {
 		if (freeList.getSize() <= 1) return;
-	
-		boolean swapped;
-		do {
-			swapped = false;
-			ListIterator iter = freeList.iterator();
-	
-			while (iter.hasNext() && iter.current.next != null) {
-				MemoryBlock currentBlock = iter.current.block;
-				MemoryBlock nextBlock = iter.current.next.block;
-	
-				if (currentBlock.baseAddress > nextBlock.baseAddress) {
-					int tempBase = currentBlock.baseAddress;
-					int tempLength = currentBlock.length;
-	
-					currentBlock.baseAddress = nextBlock.baseAddress;
-					currentBlock.length = nextBlock.length;
-	
-					nextBlock.baseAddress = tempBase;
-					nextBlock.length = tempLength;
-	
-					swapped = true;
-				}
-				iter.next();
-			}
-		} while (swapped);
-}
+        sortFreeList();
+        ListIterator iter = freeList.iterator();
+        while (iter.hasNext()) {
+            MemoryBlock currentBlock = iter.next();
+            if (!iter.hasNext()) break;
+            ListIterator innerIter = freeList.iterator();
+            MemoryBlock nextBlock = null;
+            while (innerIter.hasNext() && innerIter.next() != currentBlock);
+            
+            if (innerIter.hasNext()) {
+                nextBlock = innerIter.next();
+            }
+            if (nextBlock != null && currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
+                currentBlock.length += nextBlock.length;
+                freeList.remove(nextBlock);
+                iter = freeList.iterator();
+            }
+        }
+    }
+    
+    private void sortFreeList() {
+        if (freeList.getSize() <= 1) return;
+    
+        boolean swapped;
+        do {
+            swapped = false;
+            Node current = freeList.getNode(0);
+            while (current != null && current.next != null) {
+                if (current.block.baseAddress > current.next.block.baseAddress) {
+                    MemoryBlock temp = current.block;
+                    current.block = current.next.block;
+                    current.next.block = temp;
+                    swapped = true;
+                }
+                current = current.next;
+            }
+        } while (swapped);
+    }
 }
 //My Tests:
 
